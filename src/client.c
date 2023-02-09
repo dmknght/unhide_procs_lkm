@@ -67,11 +67,13 @@ int main()
   while (1) {
     recvmsg(sock_fd, &msg, 0);
     memcpy(&proc_info, NLMSG_DATA(nlh), nlh->nlmsg_len);
-    buf = (char *)realloc(buf, proc_info.comm_len);
-    strncpy(buf, proc_info.comm, proc_info.comm_len);
+
     if (proc_info.pid == 0) {
       break;
     }
+
+    buf = (char *)realloc(buf, proc_info.comm_len);
+    strncpy(buf, proc_info.comm, proc_info.comm_len);
     find_hidden_proc(proc_info.pid, buf);
   }
 
