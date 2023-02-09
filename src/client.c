@@ -17,19 +17,20 @@ struct nlmsghdr *nlh = NULL;
 struct iovec iov;
 int sock_fd;
 struct msghdr msg;
-struct ProcNodes {
+
+struct pid_info {
   pid_t pid;
-  struct ProcNodes* next;
+  char comm[16];
 };
 
-extern void find_hidden_proc(pid_t buf);
+extern void find_hidden_proc(struct pid_info proc_info);
 
 
 int main()
 {
   sock_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_USER);
   if (sock_fd < 0)
-      return -1;
+    return -1;
 
   memset(&src_addr, 0, sizeof(src_addr));
   src_addr.nl_family = AF_NETLINK;
@@ -59,13 +60,15 @@ int main()
 
   sendmsg(sock_fd, &msg, 0);
   /* Read message from kernel */
-  recvmsg(sock_fd, &msg, 0);
+  struct pid_info proc_info;
 
-  struct ProcNodes* list_procs = malloc(nlh->nlmsg_len);
-  memcpy(list_procs, NLMSG_DATA(nlh), nlh->nlmsg_len);
-  while (list_procs != NULL) {
-    find_hidden_proc(list_procs->pid);
-    list_procs = list_procs->next;
+  while (1) {
+    recvmsg(sock_fd, &msg, 0);
+    memcpy(&proc_info, NLMSG_DATA(nlh), nlh->nlmsg_len);
+    if (proc_info.pid == 0) {
+      break;
+    }
+    find_hidden_proc(proc_info);
   }
 
   close(sock_fd);
