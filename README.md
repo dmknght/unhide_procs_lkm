@@ -20,4 +20,4 @@ Disadvantages:
 2. Run the client `./client`
 
 
-This project was tested on Linux kernel 5.18 against Diamorphine rootkit.
+This project was tested on Linux kernel 5.18 against Diamorphine rootkit. Build successed on kernel 6.0.0.
