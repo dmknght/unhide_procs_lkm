@@ -7,3 +7,15 @@ Disadvantages:
 - It's a LKM tool. User must compile on the machine then use `insmod`. It could have kernel compatible problem.
 - This tool is a quick-made tool. It could lack of some features or have some bugs
 - The tool was written in C and Nim. The Nim code was used for easier-to-maintain and less-pain-in-the-arse-when-code. However, Nim's garbage collector causes crashes when it's used as the backend code and combine with C (and Vala). I used `gc:none` to disable the garbage colletor. However, I'm not 100% sure it won't crash on the other machines.
+
+# How to build
+1. `git clone https://github.com/dmknght/unhide_procs_lkm`
+2. `cd unhide_procs_lkm/src/`
+3. `make`
+
+# How to install
+1. Add kernel module `sudo insmod unhide_proc.ko`
+2. Run the client `./client`
+
+
+This project was tested on Linux kernel 5.18 against Diamorphine rootkit.
