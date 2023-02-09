@@ -17,8 +17,12 @@ struct nlmsghdr *nlh = NULL;
 struct iovec iov;
 int sock_fd;
 struct msghdr msg;
+struct ProcNodes {
+  pid_t pid;
+  struct ProcNodes* next;
+};
 
-extern void find_hidden_proc(pid_t *buf);
+extern void find_hidden_proc(pid_t buf);
 
 
 int main()
@@ -56,9 +60,13 @@ int main()
   sendmsg(sock_fd, &msg, 0);
   /* Read message from kernel */
   recvmsg(sock_fd, &msg, 0);
-  pid_t *buf = malloc(nlh->nlmsg_len);
-  memcpy(buf, NLMSG_DATA(nlh), nlh->nlmsg_len);
-  find_hidden_proc(buf);
+
+  struct ProcNodes* list_procs = malloc(nlh->nlmsg_len);
+  memcpy(list_procs, NLMSG_DATA(nlh), nlh->nlmsg_len);
+  while (list_procs != NULL) {
+    find_hidden_proc(list_procs->pid);
+    list_procs = list_procs->next;
+  }
 
   close(sock_fd);
 }

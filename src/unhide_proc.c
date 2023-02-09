@@ -14,6 +14,19 @@
 #define NETLINK_USER 31
 
 struct sock *nl_sk = NULL;
+struct ProcNodes {
+  pid_t pid;
+  struct ProcNodes* next;
+};
+
+
+static void append(struct ProcNodes** list, pid_t pid)
+{
+  struct ProcNodes* new_node = (struct ProcNodes*)kmalloc(sizeof(struct ProcNodes), GFP_USER);
+  new_node->pid = pid;
+  new_node->next = (*list);
+  (*list) = new_node;
+}
 
 
 static void module_handle_send_proc_list(struct nlmsghdr *netlnk_message, int client_pid)
@@ -28,18 +41,15 @@ static void module_handle_send_proc_list(struct nlmsghdr *netlnk_message, int cl
 
   struct sk_buff *skb_out;
   struct task_struct *task_list;
+  struct ProcNodes* list_procs;
 
-  pid_t *list_procs = (pid_t *)kmalloc_array(1, sizeof(pid_t), GFP_USER);
-
-  // It's really hard to handle memory passing to a function so use a for loop here instead
   for_each_process(task_list) {
-    list_procs[proc_count] = task_list->pid;
+    append(&list_procs, task_list->pid);
     proc_count++;
-    list_procs = (pid_t *)krealloc_array(list_procs, proc_count + 1, sizeof(pid_t), GFP_USER);
   }
 
-  // Craft new message
-  msg_size = proc_count * sizeof(pid_t);
+  // Craft new message and send to the client
+  msg_size = proc_count * sizeof(struct ProcNodes);
   skb_out = nlmsg_new(msg_size, 0);
 
   if (!skb_out) {
@@ -57,6 +67,8 @@ static void module_handle_send_proc_list(struct nlmsghdr *netlnk_message, int cl
 
   if (resp_err_code < 0)
     printk(KERN_INFO "Error while sending bak to user\n");
+
+  kvfree(list_procs);
 }
 
 
