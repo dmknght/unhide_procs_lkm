@@ -30,15 +30,13 @@ static void send_msg_to_client(struct nlmsghdr *netlnk_message, struct pid_info 
     int resp_err_code;
     struct sk_buff *skb_out;
 
-    msg_size = sizeof(struct pid_info);
+    msg_size = sizeof(proc_info);
     skb_out = nlmsg_new(msg_size, 0);
 
     if (!skb_out) {
       printk(KERN_ERR "Failed to allocate new skb\n");
       return;
     }
-
-    pr_info("Pid: %d, comm: %s\n", proc_info.pid, proc_info.comm);
 
     // Send message to netlink buffer
     netlnk_message = nlmsg_put(skb_out, 0, 0, NLMSG_DONE, msg_size, 0);
