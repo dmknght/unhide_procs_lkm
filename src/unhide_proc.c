@@ -21,6 +21,7 @@ struct ProcNodes {
 
 struct pid_info {
   pid_t pid;
+  unsigned char comm_len;
   char comm[TASK_COMM_LEN]; // 16
 };
 
@@ -61,7 +62,8 @@ static void module_handle_send_proc_list(struct nlmsghdr *netlnk_message, pid_t 
 
   for_each_process(task_list) {
     proc_info.pid = task_list->pid;
-    strncpy(proc_info.comm, task_list->comm, strlen(task_list->comm));
+    proc_info.comm_len = strlen(task_list->comm);
+    strncpy(proc_info.comm, task_list->comm, proc_info.comm_len);
     // Craft new message and send to the client
     send_msg_to_client(netlnk_message, proc_info, client_pid);
   }

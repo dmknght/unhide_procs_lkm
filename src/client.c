@@ -20,6 +20,7 @@ struct msghdr msg;
 
 struct pid_info {
   pid_t pid;
+  unsigned char comm_len;
   char comm[16];
 };
 
@@ -61,14 +62,17 @@ int main()
   sendmsg(sock_fd, &msg, 0);
   /* Read message from kernel */
   struct pid_info proc_info;
+  char *buf;
 
   while (1) {
     recvmsg(sock_fd, &msg, 0);
     memcpy(&proc_info, NLMSG_DATA(nlh), nlh->nlmsg_len);
+    buf = (char *)realloc(buf, proc_info.comm_len);
+    strncpy(buf, proc_info.comm, proc_info.comm_len);
     if (proc_info.pid == 0) {
       break;
     }
-    find_hidden_proc(proc_info.pid, proc_info.comm);
+    find_hidden_proc(proc_info.pid, buf);
   }
 
   close(sock_fd);
