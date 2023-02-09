@@ -3,6 +3,8 @@ Unhide procs lkm is a tool to detect hidden processes on Linux system. Unlike th
 - Super fast. Worst case is `n * n` times of check loop, n is the number of running processes on the system. Worst case of normal brute force tools is `4194304 * n`. 
 - More accurate: The normal brute force tools check if dir exists in procfs but not showing in walkDir. This method is easy to be compromised since rootkits can update the hooks to gives false information when it hides processes.
 
+**Please note that there's a small chance that a running proccess stops when the tool runs thereforce false positives could happen. However, the tool is very fast so it's very hard to happen. Also this tool can be improved to send the detected hidden pids to the kernel and then check if it's still running, and get the actual information of pids from kernel**
+
 Disadvantages:
 - It's a LKM tool. User must compile on the machine then use `insmod`. It could have kernel compatible problem.
 - This tool is a quick-made tool. It could lack of some features or have some bugs
