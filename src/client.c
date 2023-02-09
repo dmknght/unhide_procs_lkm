@@ -23,7 +23,7 @@ struct pid_info {
   char comm[16];
 };
 
-extern void find_hidden_proc(struct pid_info proc_info);
+extern void find_hidden_proc(pid_t pid, char *comm);
 
 
 int main()
@@ -68,7 +68,7 @@ int main()
     if (proc_info.pid == 0) {
       break;
     }
-    find_hidden_proc(proc_info);
+    find_hidden_proc(proc_info.pid, proc_info.comm);
   }
 
   close(sock_fd);
