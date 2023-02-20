@@ -14,10 +14,6 @@
 #define NETLINK_USER 31
 
 struct sock *nl_sk = NULL;
-struct ProcNodes {
-  pid_t pid;
-  struct ProcNodes* next;
-};
 
 struct pid_info {
   pid_t pid;
